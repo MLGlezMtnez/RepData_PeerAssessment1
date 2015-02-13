@@ -12,18 +12,17 @@ output:
 
 ## Loading and preprocessing the data
 I start by loading the `knitr`,  `dplyr` and `ggplot2` packages,
-```{r packages, echo = 1:4, message = FALSE}
+
+```r
 # loads required packages
 require(knitr)
 require(dplyr)
 require(ggplot2)
-# sets global options
-opts_chunk$set(echo = TRUE, message = FALSE, fig.align = "center", fig.height = 5, cache = TRUE)
-rinline <- function(code) sprintf('``` `r %s` ```', code)
 ```
 and load the data in `activity.csv` into a _tbl_ object called `tbl.activity`
 (having previously unzipped the `activity.zip` file if necessary).
-```{r loads & reads data}
+
+```r
 # checks if 'activity.csv' is in the working directory; otherwise, gets it from 'activity.zip'
 if(!file.exists("activity.csv")) unzip("activity.zip")
 # loads the data into tbl.activity
@@ -36,7 +35,8 @@ I group the data according to the different date, omit missing values, and find
 the sum of all steps _per_ date group with `sum()`.  The results are stored in
 `sStepsDay`, from which I create a histogram of the total number of steps per
 day.
-```{r histogram, tidy = FALSE}
+
+```r
 # calculates total number of steps per day
 sStepsDay <- group_by(tbl.activity, date) %>%
     na.omit %>%
@@ -48,21 +48,23 @@ hStepsDay <- ggplot(sStepsDay, aes(x = sSteps)) +
 print(hStepsDay)
 ```
 
+<img src="figure/histogram-1.png" title="plot of chunk histogram" alt="plot of chunk histogram" style="display: block; margin: auto;" />
+
 ####Mean and median number of steps per day.
 The mean and median number of steps per day are calculated from `sStepsDay`
 using `mean()` and `median()`.
-```{r mean & median, echo = c(1, 3:4), cache = FALSE}
+
+```r
 # finds the mean and median numbers of steps per day using sStepsDay
-options(scipen = 999, digits = 2)
 meanStepsDay <- mean(sStepsDay$sSteps)
 medianStepsDay <- median(sStepsDay$sSteps)
 ```
 The calculated values are:
 
-* **Mean** number of steps per day (`r rinline("meanStepsDay")`) is
-    `r meanStepsDay`.
-* **Median** number of steps per day (`r rinline("medianStepsDay")`) is
-    `r medianStepsDay`.
+* **Mean** number of steps per day (``` `r meanStepsDay` ```) is
+    10766.19.
+* **Median** number of steps per day (``` `r medianStepsDay` ```) is
+    10765.
 
 
 ## What is the average daily activity pattern?
@@ -71,7 +73,8 @@ The dataset is grouped by time interval, missing values omitted, and the mean
 number of steps _per_ interval calculated with `mean()`.  The time series
 depicts the variation of the average number of steps per day with respect to the
 5-minute time interval.
-```{r time series, tidy = FALSE}
+
+```r
 # calculates mean number of steps per 5-minute interval
 mStepsInt <- group_by(tbl.activity, interval) %>%
     na.omit %>%
@@ -83,18 +86,21 @@ lStepsInt <- ggplot(mStepsInt, aes(x = interval, y = mSteps)) +
 print(lStepsInt)
 ```
 
+<img src="figure/time series-1.png" title="plot of chunk time series" alt="plot of chunk time series" style="display: block; margin: auto;" />
+
 ####Interval with the maximum average number of steps.
 The figure above shows there is a clear maximun in the mean number of steps
 somewhere in the interval [750, 1000].  The exact location of this maximum is
 found using `which.max()`, which is then passed as an argument to
 `mStepsInt$interval`.
-```{r}
+
+```r
 # finds the interval with the maximum average number of steps
 maxStepsInt <- mStepsInt$interval[which.max(mStepsInt$mSteps)]
 ```
 The interval with the **maximum** average number of steps is
-[`r maxStepsInt - 5`, `r maxStepsInt`], *i.e.*, 
-the (`r rinline("maxStepsInt/5 + 1")`) `r maxStepsInt/5 + 1`-th 5-minute
+[830, 835], *i.e.*, 
+the (``` `r maxStepsInt/5 + 1` ```) 168-th 5-minute
 interval.
 
 
@@ -103,7 +109,7 @@ interval.
 The total number of missing values (`NA`) in the dataset is calculated using
 `sum()`, by taking advantage of the way logical factors are represented
 internally, _i.e._, `TRUE/FALSE =  1/0`: there are
-(`r rinline("sum(is.na(tbl.activity))")`) `r sum(is.na(tbl.activity))` missing
+(``` `r sum(is.na(tbl.activity))` ```) 2304 missing
 values.
 
 #### Strategy for filling in the missing values.
@@ -117,7 +123,8 @@ I first calculate the values to replace the `NA` by creating a new object,
 `day`, with the day of the week the observation corresponds to (calculated using
 `weekdays()`).  The data in `val2fill` is then grouped by interval and day, and
 the mean number of steps _per_ group is calculated with `mean()`.
-```{r val2fill}
+
+```r
 # creates dataset with values to fill in NAs in tbl.activity
 val2fill <- mutate(tbl.activity, day = weekdays(as.Date(date))) %>%
     group_by(interval, day) %>%
@@ -125,7 +132,8 @@ val2fill <- mutate(tbl.activity, day = weekdays(as.Date(date))) %>%
 ```
 The strategy devised in the previous section is implemented by looping over
 `tbl.activity$steps`,
-```{r filling NAs}
+
+```r
 # loops over tbl.activity$steps replacing missing values with the average number
 # of steps for the specific 5-minute interval and day of the week
 for(i in 1:length(tbl.activity$steps)) {
@@ -137,17 +145,26 @@ for(i in 1:length(tbl.activity$steps)) {
 }
 ```
 after which, the dataset has been updated
-```{r tbl.activity}
+
+```r
 # prints updated tbl.activity structure
 str(tbl.activity)
 ```
-and contains (`r rinline("sum(is.na(tbl.activity))")`)
-`r sum(is.na(tbl.activity))` missing values.
+
+```
+## Classes 'tbl_df', 'tbl' and 'data.frame':	17568 obs. of  3 variables:
+##  $ steps   : num  1.43 0 0 0 0 ...
+##  $ date    : Factor w/ 61 levels "2012-10-01","2012-10-02",..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
+```
+and contains (``` `r sum(is.na(tbl.activity))` ```)
+0 missing values.
 
 #### Histogram of the total number of steps per day, mean and median.
 A new histogram of the total number of steps per day is created using an
 analogous algorithm as above,
-```{r new histogram, tidy = FALSE}
+
+```r
 sStepsDay <- group_by(tbl.activity, date) %>%
     summarize(sSteps = sum(steps))
 hStepsDay <- ggplot(sStepsDay, aes(x = sSteps)) +
@@ -155,16 +172,18 @@ hStepsDay <- ggplot(sStepsDay, aes(x = sSteps)) +
              xlab("Total number of steps per day")
 print(hStepsDay)
 ```
+
+<img src="figure/new histogram-1.png" title="plot of chunk new histogram" alt="plot of chunk new histogram" style="display: block; margin: auto;" />
 and new mean and median number of steps per day are additionally determined.
-```{r new mean & median, echo = c(1, 3:4), cache = FALSE}
+
+```r
 # finds the new mean and median numbers of steps per day
-options(scipen = 999, digits = 2)
 meanStepsDay <- mean(sStepsDay$sSteps)
 medianStepsDay <- median(sStepsDay$sSteps)
 ```
-The new **mean** number of steps per day is (`r rinline("meanStepsDay")`)
-`r meanStepsDay`, while the new **median** is (`r rinline("medianStepsDay")`)
-`r medianStepsDay`.
+The new **mean** number of steps per day is (``` `r meanStepsDay` ```)
+10821.21, while the new **median** is (``` `r medianStepsDay` ```)
+11015.
 
 The histogram does _not_ show significant differences from above, while the mean
 and median values are _slightly higher_.  These qualitative conclusions will
@@ -178,7 +197,8 @@ A new column, `dayKind`, is added to the updated dataset, which initially
 contains the day of the week for each observation calculated using `weekdays()`.
 The new column is updated by classifying each day as "weekday" or "weekend"
 using `ifelse()`---and converted int a factor,
-```{r add weekday}
+
+```r
 # adds dayKind column with day of the week
 tbl.activity <- mutate(tbl.activity, dayKind = weekdays(as.Date(date)))
 # updates dayKind by classifying as weekday or weekend & converts to factor
@@ -187,9 +207,18 @@ tbl.activity$dayKind <- ifelse(tbl.activity$dayKind %in% c("Saturday", "Sunday")
 tbl.activity$dayKind <- as.factor(tbl.activity$dayKind)
 ```
 which results in the desired new structure for the dataset.
-```{r}
+
+```r
 # prints updated tbl.activity structure
 str(tbl.activity)
+```
+
+```
+## Classes 'tbl_df', 'tbl' and 'data.frame':	17568 obs. of  4 variables:
+##  $ steps   : num  1.43 0 0 0 0 ...
+##  $ date    : Factor w/ 61 levels "2012-10-01","2012-10-02",..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
+##  $ dayKind : Factor w/ 2 levels "weekday","weekend": 1 1 1 1 1 1 1 1 1 1 ...
 ```
 
 #### Panel plot of the 5-minute interval and the average number of steps taken, averaged across all weekday days or weekend days.
@@ -197,7 +226,8 @@ The updated dataset is grouped by interval and dayKind, and the average values
 for each group is calculated with `mean()`.  A panel plot is created, with the
 time series per dayKind and a smoother to highlight the overall qualitative
 behavior.
-```{r panel plot, tidy = FALSE, fig.width = 9}
+
+```r
 # calculates average number of steps per interval and dayKind
 mStepsInt <- group_by(tbl.activity, interval, dayKind) %>%
     summarize(mSteps = mean(steps))
@@ -210,6 +240,8 @@ lStepsInt <- ggplot(mStepsInt, aes(x = interval, y = mSteps)) +
              coord_cartesian(ylim = c(-10, 250))
 print(lStepsInt)
 ```
+
+<img src="figure/panel plot-1.png" title="plot of chunk panel plot" alt="plot of chunk panel plot" style="display: block; margin: auto;" />
 The last figure shows various features of the activity pattern for weekdays and
 weekends, _e.g._:
 
