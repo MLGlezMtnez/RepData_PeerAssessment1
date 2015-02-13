@@ -174,6 +174,7 @@ print(hStepsDay)
 ```
 
 <img src="figure/new histogram-1.png" title="plot of chunk new histogram" alt="plot of chunk new histogram" style="display: block; margin: auto;" />
+
 and new mean and median number of steps per day are additionally determined.
 
 ```r
@@ -242,7 +243,8 @@ print(lStepsInt)
 ```
 
 <img src="figure/panel plot-1.png" title="plot of chunk panel plot" alt="plot of chunk panel plot" style="display: block; margin: auto;" />
-The last figure shows various features of the activity pattern for weekdays and
+
+This figure shows various features of the activity pattern for weekdays and
 weekends, _e.g._:
 
 * The activity during weekdays/weekends is concentrated towards the

@@ -155,6 +155,7 @@ hStepsDay <- ggplot(sStepsDay, aes(x = sSteps)) +
              xlab("Total number of steps per day")
 print(hStepsDay)
 ```
+
 and new mean and median number of steps per day are additionally determined.
 ```{r new mean & median, echo = c(1, 3:4), cache = FALSE}
 # finds the new mean and median numbers of steps per day
@@ -210,7 +211,8 @@ lStepsInt <- ggplot(mStepsInt, aes(x = interval, y = mSteps)) +
              coord_cartesian(ylim = c(-10, 250))
 print(lStepsInt)
 ```
-The last figure shows various features of the activity pattern for weekdays and
+
+This figure shows various features of the activity pattern for weekdays and
 weekends, _e.g._:
 
 * The activity during weekdays/weekends is concentrated towards the
